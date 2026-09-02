@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio — UX Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #4a3d2e;
+    --ink-soft: #8a7a63;
+    --ink-muted: #b3a68e;
+    --cream: #f7efda;
+    --cream-soft: #fbf6e8;
+    --cream-card: #fffdf7;
+    --sage: #badd7f;
+    --sage-light: #e2f0cd;
+    --sage-deep: #7fb854;
+    --sage-dark: #4c6b32;
+    --pink: #f3a8c6;
+    --pink-light: #fbdcea;
+    --pink-deep: #e5789f;
+    --gold: #f0cf8a;
+    --gold-light: #faedc9;
+    --border: rgba(74,61,46,0.14);
+    --border-soft: rgba(74,61,46,0.08);
+    --radius: 20px;
+    --radius-sm: 10px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.65;
+    font-weight: 500;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+
+  /* ===== Custom butterfly cursor ===== */
+  .cursor-butterfly {
+    position: fixed;
+    width: 30px; height: 30px;
+    pointer-events: none;
+    z-index: 9999;
+    will-change: transform;
+  }
+  .cursor-butterfly svg { width: 100%; height: 100%; overflow: visible; }
+  .cb-wing { transform-origin: 15px 15px; animation: flutter 0.42s ease-in-out infinite; }
+  .cb-wing.right { animation-delay: 0.02s; }
+  @keyframes flutter {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(0.55); }
+  }
+  .sparkle {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    font-size: 12px;
+    color: var(--pink-deep);
+    animation: sparkle-pop 0.75s ease-out forwards;
+  }
+  @keyframes sparkle-pop {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.4) translateY(0); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.1) translateY(-22px); }
+  }
+
+  /* ===== Draggable stickers ===== */
+  .sticker {
+    position: fixed;
+    width: 58px; height: 58px;
+    z-index: 500;
+    cursor: none;
+    touch-action: none;
+    filter: drop-shadow(0 4px 8px rgba(74,61,46,0.18));
+    animation: sticker-float 5s ease-in-out infinite;
+  }
+  .sticker svg { width: 100%; height: 100%; }
+  .sticker.dragging { animation: none; transition: none; z-index: 600; }
+  @keyframes sticker-float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+    50% { transform: translateY(-10px) rotate(calc(var(--rot, 0deg) + 4deg)); }
+  }
+  /* Grouped near hero content instead of scattered at screen corners:
+     clover + star sit near the intro text, heart + flower hug the polaroid stack,
+     mirror trails lower for when you scroll into About. */
+  #sticker-clover { top: 150px; left: 4vw; --rot: -8deg; animation-delay: 0.2s; }
+  #sticker-star   { top: 420px; left: 6vw; --rot: -5deg; animation-delay: 1.4s; width: 44px; height: 44px; }
+  #sticker-heart  { top: 130px; right: 5vw; --rot: 10deg; animation-delay: 0.9s; }
+  #sticker-flower { top: 470px; right: 2vw; --rot: -12deg; animation-delay: 0.5s; }
+  #sticker-mirror { bottom: 6vh; left: 3vw; --rot: 8deg; animation-delay: 1.1s; width: 48px; height: 48px; }
+
+  @media (max-width: 900px) {
+    .sticker { width: 42px; height: 42px; }
+    #sticker-star { width: 34px; height: 34px; }
+    #sticker-mirror { width: 38px; height: 38px; }
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    background: rgba(247,239,218,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-logo {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--pink-deep); }
+
+  /* Sections */
+  section { padding: 7rem 3rem; max-width: 1200px; margin: 0 auto; }
+
+  /* ===== Hero: scrapbook layout ===== */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 3rem;
+    padding-top: 9rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .tape-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Caveat', cursive;
+    font-weight: 600;
+    font-size: 1.35rem;
+    color: var(--sage-dark);
+    background: var(--sage-light);
+    padding: 0.3rem 1.3rem 0.4rem;
+    border-radius: 3px;
+    transform: rotate(-3deg);
+    margin-bottom: 1.75rem;
+    box-shadow: 0 2px 6px rgba(74,61,46,0.08);
+    position: relative;
+  }
+  .tape-badge::before, .tape-badge::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    width: 28px; height: 16px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.7);
+  }
+  .tape-badge::before { left: -6px; transform: rotate(-8deg); }
+  .tape-badge::after { right: -6px; transform: rotate(8deg); }
+  .hero-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: clamp(2.75rem, 4.6vw, 4.1rem);
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+  .hero-title .highlight {
+    position: relative;
+    white-space: nowrap;
+  }
+  .hero-title .highlight::before {
+    content: '';
+    position: absolute;
+    left: -6px; right: -6px; bottom: 2px;
+    height: 0.5em;
+    background: var(--pink-light);
+    z-index: -1;
+    border-radius: 4px 8px 4px 8px;
+  }
+  .hero-desc {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    max-width: 470px;
+    margin-bottom: 1.1rem;
+    line-height: 1.75;
+  }
+  .hero-desc strong { color: var(--ink); font-weight: 700; }
+  .hero-subline {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--pink-deep);
+    margin-bottom: 2.1rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; align-items: center; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--sage-deep);
+    color: var(--cream-card);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.85rem 1.75rem;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    cursor: none;
+  }
+  .btn-primary:hover { background: var(--sage-dark); transform: translateY(-2px) rotate(-1deg); }
+  .btn-ghost {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    cursor: none;
+    padding-bottom: 3px;
+    border-bottom: 1.5px dashed var(--ink-muted);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--pink-deep); border-color: var(--pink-deep); }
+
+  /* Hero scrapbook visual */
+  .hero-scrap { position: relative; height: 500px; }
+  .polaroid {
+    position: absolute;
+    background: var(--cream-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 0.9rem 0.9rem 1.6rem;
+    box-shadow: 0 10px 28px rgba(74,61,46,0.12);
+  }
+  .main-polaroid { width: 260px; top: 10px; left: 90px; z-index: 3; animation: sway 7s ease-in-out infinite; --r: 4deg; }
+  .polaroid-photo {
+    width: 100%;
+    height: 190px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, var(--sage-light), var(--pink-light));
+    overflow: hidden;
+    position: relative;
+  }
+  .polaroid-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .polaroid-caption { font-family: 'Caveat', cursive; font-size: 1.25rem; font-weight: 600; color: var(--ink-soft); text-align: center; margin-top: 0.6rem; }
+  .washi {
+    position: absolute;
+    top: -14px; left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 90px; height: 26px;
+    background: repeating-linear-gradient(45deg, var(--pink-light), var(--pink-light) 6px, var(--pink) 6px, var(--pink) 12px);
+    opacity: 0.85;
+    border-radius: 2px;
+  }
+  .side-polaroid { width: 168px; padding: 0.6rem 0.6rem 1.1rem; }
+  .p1 { top: 30px; right: 0; z-index: 2; animation: sway 8s ease-in-out infinite reverse; --r: -11deg; }
+  .p2 { bottom: 10px; left: 0; z-index: 2; animation: sway 6.5s ease-in-out infinite; --r: 9deg; }
+  .side-photo { width: 100%; height: 110px; border-radius: 2px; overflow: hidden; position: relative; }
+  .side-photo.gold { background: var(--gold-light); }
+  .side-photo.sage { background: var(--sage-light); }
+  .side-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .side-caption { font-family: 'Caveat', cursive; font-size: 1.05rem; text-align: center; margin-top: 0.4rem; color: var(--ink-soft); }
+  @keyframes sway {
+    0%, 100% { transform: rotate(var(--r, 3deg)); }
+    50% { transform: rotate(calc(var(--r, 3deg) - 2deg)) translateY(-4px); }
+  }
+  .doodle-arrow { position: absolute; bottom: 60px; left: 40px; font-family: 'Caveat', cursive; font-size: 1.15rem; color: var(--sage-dark); transform: rotate(-6deg); z-index: 1; }
+
+  /* Little scribbled details that make each polaroid feel handled, not templated */
+  .doodle-date {
+    position: absolute;
+    font-family: 'Caveat', cursive;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    transform: rotate(-4deg);
+  }
+  .paperclip {
+    position: absolute;
+    top: -16px; left: 14px;
+    width: 26px; height: 40px;
+    transform: rotate(-8deg);
+    z-index: 4;
+  }
+  .pin {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f7c3da, var(--pink-deep) 70%);
+    box-shadow: 0 3px 5px rgba(74,61,46,0.25);
+    z-index: 4;
+  }
+  .doodle-star {
+    position: absolute;
+    font-size: 1rem;
+    color: var(--gold);
+    z-index: 4;
+  }
+
+  /* Stat strip */
+  .stat-strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--cream-soft); padding: 2rem 3rem; display: flex; gap: 4rem; justify-content: center; }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 2.25rem; color: var(--sage-dark); letter-spacing: -0.01em; line-height: 1; }
+  .stat-label { font-size: 0.8rem; font-weight: 600; color: var(--ink-muted); margin-top: 0.3rem; letter-spacing: 0.03em; }
+
+  /* Section headers */
+  .section-tag { font-family: 'Caveat', cursive; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.02em; color: var(--pink-deep); margin-bottom: 0.4rem; }
+  .section-title { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: clamp(1.9rem, 3.2vw, 2.6rem); letter-spacing: -0.01em; line-height: 1.18; color: var(--ink); margin-bottom: 1rem; }
+  .section-desc { font-size: 1rem; font-weight: 500; color: var(--ink-soft); max-width: 520px; line-height: 1.75; }
+
+  /* About */
+  #about { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+  .about-image-wrap { position: relative; height: 440px; }
+  .about-img-bg { position: absolute; inset: 0; background: var(--sage-light); border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%; animation: blob 10s ease-in-out infinite reverse; }
+  @keyframes blob {
+    0%, 100% { border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%; }
+    33% { border-radius: 55% 45% 40% 60% / 45% 55% 45% 55%; }
+    66% { border-radius: 45% 55% 60% 40% / 55% 45% 50% 50%; }
+  }
+  .about-img-frame {
+    position: absolute; top: 30px; left: 30px; right: 30px; bottom: 30px;
+    background: var(--cream-soft); border-radius: var(--radius); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;
+    color: var(--ink-muted); font-size: 0.85rem;
+    overflow: hidden;
+  }
+  .about-img-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .about-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink-light), var(--sage-light));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1.75rem; color: var(--pink-deep);
+    margin-bottom: 0.5rem;
+  }
+  .about-content { padding: 1rem 0; }
+  .about-content .section-desc { max-width: 100%; margin-bottom: 2rem; }
+  .skills-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+  .skill-pill {
+    font-size: 0.8rem; font-weight: 600; padding: 0.4rem 1rem; border-radius: 100px;
+    border: 1px solid var(--border); background: var(--cream-card); color: var(--ink-soft);
+    transition: all 0.2s; cursor: none;
+  }
+  .skill-pill:hover { background: var(--pink); color: white; border-color: var(--pink); }
+  .skill-pill.accent { background: var(--sage-light); border-color: var(--sage); color: var(--sage-dark); }
+
+  /* Case Studies */
+  .work-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; }
+  .case-studies { display: flex; flex-direction: column; gap: 2rem; }
+  .case-card {
+    background: var(--cream-card); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; display: grid; grid-template-columns: 1fr 1.4fr;
+    transition: transform 0.3s, box-shadow 0.3s; cursor: none; text-decoration: none; color: inherit;
+  }
+  .case-card:hover { transform: translateY(-4px) rotate(-0.3deg); box-shadow: 0 16px 40px rgba(74,61,46,0.14); }
+  .case-card.reverse { grid-template-columns: 1.4fr 1fr; }
+  .case-card.reverse .case-visual { order: -1; }
+  .case-visual { height: 320px; display: flex; align-items: center; justify-content: center; padding: 2rem; position: relative; overflow: hidden; }
+  .case-visual.cv-full { padding: 0; }
+  .case-visual.cv-full img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cv-pink { background: var(--pink-light); }
+  .cv-sage { background: var(--sage-light); }
+  .cv-gold { background: var(--gold-light); }
+  .cv-screen {
+    width: 90%; max-width: 260px; background: white; border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 8px 32px rgba(0,0,0,0.08); padding: 1rem; font-size: 0.72rem;
+  }
+  .cv-screen-bar { height: 8px; border-radius: 4px; background: var(--sage-light); margin-bottom: 8px; }
+  .cv-screen-bar.short { width: 55%; }
+  .cv-screen-bar.med { width: 75%; }
+  .case-info { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+  .case-tag { font-family: 'Caveat', cursive; font-size: 1.05rem; font-weight: 600; color: var(--ink-muted); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+  .case-title { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.25; color: var(--ink); margin-bottom: 0.75rem; }
+  .case-desc { font-size: 0.9rem; font-weight: 500; color: var(--ink-soft); line-height: 1.7; margin-bottom: 1.5rem; }
+  .case-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .tag-chip { font-size: 0.72rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 100px; background: var(--cream-soft); color: var(--ink-soft); border: 1px solid var(--border); }
+  .case-link { font-size: 0.85rem; font-weight: 700; color: var(--pink-deep); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; transition: gap 0.2s; }
+  .case-link:hover { gap: 0.6rem; }
+
+  /* Skills Section */
+  #skills { background: var(--sage-dark); color: var(--cream); max-width: 100%; padding: 7rem 0; }
+  #skills .inner { max-width: 1200px; margin: 0 auto; padding: 0 3rem; }
+  #skills .section-title { color: var(--cream); }
+  #skills .section-tag { color: var(--gold); }
+  #skills .section-desc { color: rgba(247,239,218,0.72); }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 3rem; }
+  .tool-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-sm); padding: 1.5rem; transition: background 0.2s, border-color 0.2s; cursor: none; }
+  .tool-card:hover { background: rgba(255,255,255,0.13); border-color: var(--pink); }
+  .tool-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(243,168,198,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 1rem; }
+  .tool-name { font-size: 0.9rem; font-weight: 700; color: var(--cream); margin-bottom: 0.3rem; }
+  .tool-type { font-size: 0.75rem; font-weight: 500; color: rgba(247,239,218,0.55); }
+  .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.1); border-radius: var(--radius); overflow: hidden; margin-top: 3rem; }
+  .process-step { background: var(--sage-dark); padding: 2rem 1.5rem; position: relative; }
+  .ps-num { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 2.5rem; color: rgba(243,168,198,0.35); line-height: 1; margin-bottom: 0.75rem; }
+  .ps-title { font-size: 0.9rem; font-weight: 700; color: var(--cream); margin-bottom: 0.5rem; }
+  .ps-desc { font-size: 0.8rem; font-weight: 500; color: rgba(247,239,218,0.6); line-height: 1.6; }
+
+  /* Contact */
+  #contact { text-align: center; }
+  .contact-inner { max-width: 620px; margin: 0 auto; }
+  .contact-inner .section-desc { margin: 1rem auto 2.5rem; }
+  .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .contact-card {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.5rem;
+    background: var(--cream-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 0.875rem; font-weight: 600; color: var(--ink); text-decoration: none; transition: all 0.2s; cursor: none;
+  }
+  .contact-card:hover { border-color: var(--pink); color: var(--pink-deep); transform: translateY(-2px) rotate(-1deg); }
+  .contact-icon { width: 32px; height: 32px; border-radius: 6px; background: var(--sage-light); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between;
+    align-items: center; max-width: 1200px; margin: 0 auto; color: var(--ink-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  footer a:hover { color: var(--pink-deep); }
+
+  /* Reveal animation */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticker, .main-polaroid, .p1, .p2, .about-img-bg, .cb-wing { animation: none !important; }
+  }
+
+  @media (hover: none) {
+    body, .btn-primary, .btn-ghost, .skill-pill, .case-card, .tool-card, .contact-card { cursor: auto !important; }
+    .cursor-butterfly, .sparkle { display: none !important; }
+    .sticker { cursor: grab; }
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    section { padding: 5rem 1.5rem; }
+    #hero { grid-template-columns: 1fr; padding-top: 7rem; text-align: center; }
+    .hero-desc, .hero-subline { margin-left: auto; margin-right: auto; }
+    .hero-actions { justify-content: center; }
+    .hero-scrap { height: 320px; margin-top: 1rem; }
+    .main-polaroid { width: 190px; left: 50%; transform: translateX(-50%) rotate(2deg); top: 0; }
+    .side-polaroid { display: none; }
+    .doodle-arrow { display: none; }
+    #about { grid-template-columns: 1fr; }
+    .about-image-wrap { height: 280px; }
+    .case-card, .case-card.reverse { grid-template-columns: 1fr; }
+    .case-visual { height: 200px; }
+    .process-steps { grid-template-columns: repeat(2, 1fr); }
+    .stat-strip { gap: 2rem; padding: 1.5rem; flex-wrap: wrap; justify-content: space-around; }
+    footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+    .work-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor-butterfly" id="cursorButterfly">
+  <svg viewBox="0 0 30 30">
+    <g class="cb-wing left">
+      <path d="M15 15 C 6 4, -2 6, 2 15 C -2 24, 6 26, 15 15 Z" fill="#f3a8c6"/>
+      <path d="M15 15 C 9 8, 4 9, 6 15 C 4 21, 9 22, 15 15 Z" fill="#fbdcea"/>
+    </g>
+    <g class="cb-wing right">
+      <path d="M15 15 C 24 4, 32 6, 28 15 C 32 24, 24 26, 15 15 Z" fill="#badd7f"/>
+      <path d="M15 15 C 21 8, 26 9, 24 15 C 26 21, 21 22, 15 15 Z" fill="#e2f0cd"/>
+    </g>
+    <ellipse cx="15" cy="15" rx="1.6" ry="6" fill="#4a3d2e"/>
+  </svg>
+</div>
+
+<!-- Stickers -->
+<div class="sticker" id="sticker-clover">
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="27" fill="#fffdf7" stroke="#badd7f" stroke-width="2"/>
+    <g fill="#8fc25c">
+      <circle cx="21" cy="21" r="9"/>
+      <circle cx="39" cy="21" r="9"/>
+      <circle cx="21" cy="39" r="9"/>
+      <circle cx="39" cy="39" r="9"/>
+    </g>
+    <rect x="28.5" y="30" width="3" height="16" rx="1.5" fill="#7fb854"/>
+  </svg>
+</div>
+
+<div class="sticker" id="sticker-heart">
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="27" fill="#fffdf7" stroke="#f3a8c6" stroke-width="2"/>
+    <path d="M30 44 C 12 32, 14 16, 26 16 C 29 16, 30 19, 30 19 C 30 19, 31 16, 34 16 C 46 16, 48 32, 30 44 Z" fill="#ed8fb5"/>
+  </svg>
+</div>
+
+<div class="sticker" id="sticker-star">
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="27" fill="#fffdf7" stroke="#f0cf8a" stroke-width="2"/>
+    <path d="M30 12 L34.5 25 L48 26 L37.5 34.5 L41 48 L30 40 L19 48 L22.5 34.5 L12 26 L25.5 25 Z" fill="#eec464"/>
+  </svg>
+</div>
+
+<div class="sticker" id="sticker-flower">
+  <svg viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="27" fill="#fffdf7" stroke="#f3a8c6" stroke-width="2"/>
+    <g fill="#f7c3da">
+      <ellipse cx="30" cy="17" rx="8" ry="11"/>
+      <ellipse cx="30" cy="43" rx="8" ry="11"/>
+      <ellipse cx="17" cy="30" rx="11" ry="8"/>
+      <ellipse cx="43" cy="30" rx="11" ry="8"/>
+    </g>
+    <circle cx="30" cy="30" r="8" fill="#eec464"/>
+  </svg>
+</div>
+
+<div class="sticker" id="sticker-mirror">
+  <svg viewBox="0 0 60 60">
+    <circle cx="27" cy="24" r="17" fill="#e6f2ff" stroke="#badd7f" stroke-width="3"/>
+    <ellipse cx="22" cy="18" rx="4" ry="7" fill="#ffffff" opacity="0.6"/>
+    <rect x="35" y="40" width="5" height="16" rx="2.5" fill="#8fc25c" transform="rotate(35 37 48)"/>
+  </svg>
+</div>
+
+<nav>
+  <a class="nav-logo" href="#">Shweta Mishra</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div>
+    <div class="tape-badge">hi, i'm shweta ✦</div>
+    <h1 class="hero-title">
+      designing little<br />moments of <span class="highlight">delight</span>
+    </h1>
+    <p class="hero-desc">
+      I'm a UI/UX designer who gets a little too excited about micro-interactions and thinks the best interfaces feel like <strong>a warm hug</strong>, not a spreadsheet. I turn messy, ambiguous problems into products people actually enjoy using.
+    </p>
+    <p class="hero-subline">currently sipping chai, sketching wireframes, and hunting for my first big opportunity ✿</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#work">View my work ↓</a>
+      <a class="btn-ghost" href="#contact">Let's connect →</a>
+    </div>
+  </div>
+
+  <div class="hero-scrap">
+    <div class="side-polaroid p1 polaroid">
+      <div class="pin"></div>
+      <div class="side-photo gold">
+        <img src="portfolio_aster_07.jpeg" alt="">
+      </div>
+      <p class="side-caption">sunflower szn ☀</p>
+      <span class="doodle-date" style="bottom: 6px; right: 10px;">'26</span>
+    </div>
+
+    <div class="main-polaroid polaroid">
+      <div class="washi"></div>
+      <div class="polaroid-photo">
+        <img src="portfolio_aster_05.jpeg" alt="">
+      </div>
+      <p class="polaroid-caption">design & nature go hand-in-hand ✿</p>
+      <span class="doodle-star" style="top: 8px; right: 10px;">✧</span>
+    </div>
+
+    <div class="side-polaroid p2 polaroid">
+      <svg class="paperclip" viewBox="0 0 26 40" fill="none">
+        <path d="M13 4 C6 4 3 9 3 15 L3 30 C3 35 7 38 12 38 C17 38 20 35 20 30 L20 12" stroke="#b3a68e" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <div class="side-photo sage">
+        <img src="portfolio_aster_03.jpeg" alt="">
+      </div>
+      <p class="side-caption"> soft spot for cats! ♡</p>
+    </div>
+  </div>
+</section>
+
+<!-- STAT STRIP -->
+<div class="stat-strip">
+  <div class="stat-item">
+    <div class="stat-num">3+</div>
+    <div class="stat-label">Projects completed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Case studies</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">1</div>
+    <div class="stat-label">Years learning UX</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Curiosity</div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-image-wrap reveal">
+    <div class="about-img-bg"></div>
+    <div class="about-img-frame">
+    <img src="portfolio_aster_04.jpeg" alt="">
+    </div>
+  </div>
+  <div class="about-content reveal">
+    <p class="section-tag">About me</p>
+    <h2 class="section-title">I design with empathy<br />at the center</h2>
+    <p class="section-desc" style="margin-bottom:1.25rem;">
+      Hi! I'm a passionate UI/UX designer at the beginning of my journey. I believe great design isn't just about making things look beautiful, it's about understanding people and building experiences that genuinely help them.
+    </p>
+    <p class="section-desc">
+      I'm currently studying design and building my portfolio through personal projects and collaborations. I love solving ambiguous problems, conducting user research, and turning insights into clean, functional interfaces.
+    </p>
+    <div class="skills-grid" style="margin-top: 2rem;">
+      <span class="skill-pill">User Research</span>
+      <span class="skill-pill">Wireframing</span>
+      <span class="skill-pill">Prototyping</span>
+      <span class="skill-pill">Figma</span>
+      <span class="skill-pill">Claude ai</span>
+      <span class="skill-pill">Usability Testing</span>
+      <span class="skill-pill">Design Systems</span>
+      <span class="skill-pill">HTML/CSS basics</span>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section id="work">
+  <div class="work-header reveal">
+    <div>
+      <p class="section-tag">Case Studies</p>
+      <h2 class="section-title">Selected work</h2>
+    </div>
+    <a class="btn-ghost" href="#">See all projects →</a>
+  </div>
+  <div class="case-studies">
+
+    <!-- Case 1 -->
+    <a href="cravly_casestudy.html" class="case-card reveal">
+      <div class="case-visual cv-pink cv-full">
+        <img src="cravly_cs.png" alt="Cravly social-to-transactional user flow diagram">
+      </div>
+      <div class="case-info">
+        <div class="case-tag">Product Design</div>
+        <h3 class="case-title">Cravly — eat what they're having</h3>
+        <p class="case-desc">A social food delivery app that combines genuine community reviews with one-tap ordering, so you always know what's actually good.</p>
+        <div class="case-tags">
+          <span class="tag-chip">User Research</span>
+          <span class="tag-chip">Figma</span>
+          <span class="tag-chip">Usability Testing</span>
+          <span class="tag-chip">Prototyping</span>
+        </div>
+        <span class="case-link">Read case study →</span>
+      </div>
+    </a>
+
+    <!-- Case 2 -->
+     <a href="InspectIQ_casestudy.html" class="case-card reveal">
+      <div class="case-visual cv-pink cv-full">
+        <img src="insIQ.png" alt="InspectIQ app and web admin console screens">
+      </div>
+      <div class="case-info">
+        <div class="case-tag">UI/UX Design</div>
+        <h3 class="case-title">InspectIQ — Reduced 93% of lengthy inspection processes</h3>
+        <p class="case-desc">Designed a food inspection app and web admin console, which made the lengthy process short and precise.</p>
+        <div class="case-tags">
+          <span class="tag-chip">User Research</span>
+          <span class="tag-chip">Figma</span>
+          <span class="tag-chip">Usability Testing</span>
+          <span class="tag-chip">Prototyping</span>
+        </div>
+        <span class="case-link">Read case study →</span>
+      </div>
+    </a>
+
+    <!-- Case 3 -->
+     <a href="coming soon" class="case-card reveal">
+      <div class="case-visual cv-pink cv-full">
+        <img src="pastelpaw_cs.png" alt="PastelPaw app screens">
+      </div>
+      <div class="case-info">
+        <div class="case-tag">UI/UX Design</div>
+        <h3 class="case-title">PastelPaw — An app for those who need a companion</h3>
+        <p class="case-desc">A gamified pet adoption app that helps users find their perfect furry friend who helps them achieve certain goals.</p>
+        <div class="case-tags">
+          <span class="tag-chip">Visual Design</span>
+          <span class="tag-chip">Figma</span>
+          <span class="tag-chip">Usability Testing</span>
+          <span class="tag-chip">Prototyping</span>
+        </div>
+        <span class="case-link">Coming Soon →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- SKILLS SECTION -->
+<div id="skills">
+  <div class="inner">
+    <div class="reveal">
+      <p class="section-tag">Skills & Tools</p>
+      <h2 class="section-title">How I work</h2>
+      <p class="section-desc">My process is rooted in empathy — understanding the "why" before designing the "what".</p>
+    </div>
+
+    <div class="process-steps reveal">
+      <div class="process-step">
+        <div class="ps-num">01</div>
+        <div class="ps-title">Discover</div>
+        <div class="ps-desc">User interviews, surveys, competitor analysis, and desk research to understand the problem space.</div>
+      </div>
+      <div class="process-step">
+        <div class="ps-num">02</div>
+        <div class="ps-title">Define</div>
+        <div class="ps-desc">Synthesize findings into personas, user journeys, and a clear problem statement.</div>
+      </div>
+      <div class="process-step">
+        <div class="ps-num">03</div>
+        <div class="ps-title">Design</div>
+        <div class="ps-desc">Sketches, wireframes, and high-fidelity prototypes with a strong visual language.</div>
+      </div>
+      <div class="process-step">
+        <div class="ps-num">04</div>
+        <div class="ps-title">Test & Iterate</div>
+        <div class="ps-desc">Usability testing, collecting feedback, refining until the design truly works for people.</div>
+      </div>
+    </div>
+
+    <div class="tools-grid reveal">
+      <div class="tool-card">
+        <div class="tool-icon">✦</div>
+        <div class="tool-name">Figma</div>
+        <div class="tool-type">UI Design & Prototyping</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">◎</div>
+        <div class="tool-name">Claude</div>
+        <div class="tool-type">Research/wireframing</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">⬡</div>
+        <div class="tool-name">Perplexity</div>
+        <div class="tool-type">Research</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">◈</div>
+        <div class="tool-name">Notion</div>
+        <div class="tool-type">Research Documentation</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">◻</div>
+        <div class="tool-name">Miro</div>
+        <div class="tool-type">Ideation & Mapping</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">⌁</div>
+        <div class="tool-name">HTML / CSS</div>
+        <div class="tool-type">Developer Handoff</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <p class="section-tag">Contact</p>
+    <h2 class="section-title">Let's build something together</h2>
+    <p class="section-desc">
+      I'm actively looking for internships, freelance projects, and entry-level roles. Whether you have an opportunity or just want to chat about design, I'd love to hear from you.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:shwetamishra4001@gmail.com" class="contact-card">
+        <div class="contact-icon">✉</div>
+        shwetamishra4001@gmail.com
+      </a>
+      <a href="https://linkedin.com/in/shweta-mishra-707694254" class="contact-card" target="_blank">
+        <div class="contact-icon">in</div>
+        LinkedIn
+      </a>
+      <a href="https://behance.net" class="contact-card" target="_blank">
+        <div class="contact-icon">Be</div>
+        Behance
+      </a>
+      <a href="https://dribbble.com" class="contact-card" target="_blank">
+        <div class="contact-icon" style="color:#ea4c89;">⊕</div>
+        Dribbble
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Designed & built by <strong>Shweta Mishra</strong> — 2026</span>
+  <a href="#">Back to top ↑</a>
+</footer>
+
+<script>
+  // ===== Butterfly cursor with sparkle trail =====
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  if (!isTouch) {
+    const butterfly = document.getElementById('cursorButterfly');
+    let mx = -100, my = -100, bx = -100, by = -100, lastAngle = 0;
+    let lastSparkle = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      const now = performance.now();
+      if (now - lastSparkle > 70) {
+        lastSparkle = now;
+        spawnSparkle(mx, my);
+      }
+    });
+
+    function spawnSparkle(x, y) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      const glyphs = ['✦', '✧', '⋆', '·'];
+      s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      s.style.left = (x + (Math.random() * 14 - 7)) + 'px';
+      s.style.top = (y + (Math.random() * 14 - 7)) + 'px';
+      s.style.color = Math.random() > 0.5 ? '#e5789f' : '#7fb854';
+      document.body.appendChild(s);
+      s.addEventListener('animationend', () => s.remove());
+    }
+
+    function animButterfly() {
+      const dx = mx - bx, dy = my - by;
+      bx += dx * 0.18;
+      by += dy * 0.18;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (Math.abs(dx) + Math.abs(dy) > 1) lastAngle = angle;
+      butterfly.style.transform = `translate(${bx}px, ${by}px) translate(-50%, -50%) rotate(${lastAngle * 0.12}deg)`;
+      requestAnimationFrame(animButterfly);
+    }
+    animButterfly();
+  } else {
+    document.getElementById('cursorButterfly').style.display = 'none';
+  }
+
+  // ===== Draggable stickers =====
+  document.querySelectorAll('.sticker').forEach(sticker => {
+    let dragging = false, offX = 0, offY = 0;
+
+    const start = (clientX, clientY) => {
+      dragging = true;
+      sticker.classList.add('dragging');
+      const rect = sticker.getBoundingClientRect();
+      offX = clientX - rect.left;
+      offY = clientY - rect.top;
+      sticker.style.left = rect.left + 'px';
+      sticker.style.top = rect.top + 'px';
+      sticker.style.right = 'auto';
+      sticker.style.bottom = 'auto';
+    };
+    const move = (clientX, clientY) => {
+      if (!dragging) return;
+      sticker.style.left = (clientX - offX) + 'px';
+      sticker.style.top = (clientY - offY) + 'px';
+    };
+    const end = () => {
+      dragging = false;
+      sticker.classList.remove('dragging');
+    };
+
+    sticker.addEventListener('mousedown', e => { start(e.clientX, e.clientY); e.preventDefault(); });
+    window.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+    window.addEventListener('mouseup', end);
+
+    sticker.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      start(t.clientX, t.clientY);
+    }, { passive: true });
+    window.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      move(t.clientX, t.clientY);
+    }, { passive: true });
+    window.addEventListener('touchend', end);
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in-view'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
