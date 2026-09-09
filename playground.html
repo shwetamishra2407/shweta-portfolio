@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Playground — Shweta Mishra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #4a3d2e;
+    --ink-soft: #8a7a63;
+    --ink-muted: #b3a68e;
+    --cream: #f7efda;
+    --cream-soft: #fbf6e8;
+    --cream-card: #fffdf7;
+    --sage: #badd7f;
+    --sage-light: #e2f0cd;
+    --sage-deep: #7fb854;
+    --sage-dark: #4c6b32;
+    --pink: #f3a8c6;
+    --pink-light: #fbdcea;
+    --pink-deep: #e5789f;
+    --gold: #f0cf8a;
+    --gold-light: #faedc9;
+    --lilac: #c9b6e4;
+    --lilac-light: #ece3f6;
+    --sky: #a9cbe8;
+    --sky-light: #e2eef7;
+    --border: rgba(74,61,46,0.14);
+    --border-soft: rgba(74,61,46,0.08);
+    --radius: 20px;
+    --radius-sm: 10px;
+    --cork: #d8b98f;
+    --cork-dark: #c4a377;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.65;
+    font-weight: 500;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+
+  /* ===== Custom butterfly cursor (same as main site) ===== */
+  .cursor-butterfly { position: fixed; width: 30px; height: 30px; pointer-events: none; z-index: 9999; will-change: transform; }
+  .cursor-butterfly svg { width: 100%; height: 100%; overflow: visible; }
+  .cb-wing { transform-origin: 15px 15px; animation: flutter 0.42s ease-in-out infinite; }
+  .cb-wing.right { animation-delay: 0.02s; }
+  @keyframes flutter { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.55); } }
+  .sparkle { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; font-size: 12px; color: var(--pink-deep); animation: sparkle-pop 0.75s ease-out forwards; }
+  @keyframes sparkle-pop { 0% { opacity: 1; transform: translate(-50%,-50%) scale(0.4) translateY(0); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.1) translateY(-22px); } }
+
+  @media (hover: none) {
+    body { cursor: auto !important; }
+    .cursor-butterfly, .sparkle { display: none !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cb-wing, .corkcard, .washi-strip { animation: none !important; }
+  }
+
+  /* Nav — identical to main site */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 3rem; background: rgba(247,239,218,0.88);
+    backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-logo { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1.3rem; color: var(--ink); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.current { color: var(--pink-deep); }
+
+  section { padding: 7rem 3rem 5rem; max-width: 1200px; margin: 0 auto; }
+
+  /* ===== Header: torn-corner intro, deliberately off-kilter ===== */
+  #ground-head { padding-top: 9rem; padding-bottom: 2rem; }
+  .tape-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: 'Caveat', cursive; font-weight: 600; font-size: 1.35rem; color: var(--sage-dark);
+    background: var(--sage-light); padding: 0.3rem 1.3rem 0.4rem; border-radius: 3px;
+    transform: rotate(-3deg); margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(74,61,46,0.08); position: relative;
+  }
+  .tape-badge::before, .tape-badge::after { content: ''; position: absolute; top: -8px; width: 28px; height: 16px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.7); }
+  .tape-badge::before { left: -6px; transform: rotate(-8deg); }
+  .tape-badge::after { right: -6px; transform: rotate(8deg); }
+
+  .ground-title {
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: clamp(2.5rem, 4.6vw, 3.8rem); line-height: 1.1;
+    letter-spacing: -0.01em; color: var(--ink); margin-bottom: 1rem;
+    max-width: 700px; transform: rotate(-0.6deg);
+  }
+  .ground-title .scribble { position: relative; white-space: nowrap; }
+  .ground-title .scribble::before {
+    content: ''; position: absolute; left: -6px; right: -6px; bottom: 4px; height: 0.45em;
+    background: var(--lilac-light); z-index: -1; border-radius: 3px 9px 3px 9px; transform: rotate(-1deg);
+  }
+  .ground-desc { font-size: 1.02rem; color: var(--ink-soft); max-width: 480px; margin-bottom: 0.5rem; }
+  .ground-note {
+    font-family: 'Caveat', cursive; font-size: 1.15rem; font-weight: 600; color: var(--ink-muted);
+    transform: rotate(-1deg); display: inline-block; margin-top: 0.75rem;
+  }
+
+  /* ===== Corkboard ===== */
+  .corkboard {
+    background: var(--cork);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 1px, transparent 1.6px),
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,0.05) 1px, transparent 1.6px),
+      radial-gradient(circle at 40% 80%, rgba(255,255,255,0.05) 1px, transparent 1.6px),
+      radial-gradient(circle at 85% 15%, rgba(0,0,0,0.04) 1px, transparent 1.6px);
+    background-size: 140px 140px, 160px 160px, 130px 130px, 150px 150px;
+    border-radius: var(--radius);
+    border: 10px solid var(--cream-card);
+    box-shadow: 0 18px 44px rgba(74,61,46,0.2), inset 0 0 40px rgba(0,0,0,0.08);
+    padding: 4rem 3rem 5rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2.5rem 1.75rem;
+  }
+
+  .corkcard {
+    position: relative;
+    background: var(--cream-card);
+    border-radius: 6px;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+    padding: 1.1rem 1.1rem 1.4rem;
+  }
+
+  /* Scattered placement + rotation — messy on purpose */
+  .cc-orb {
+    grid-column: 1 / 8;
+    transform: rotate(-1.4deg);
+    margin-top: 0.5rem;
+  }
+  .cc-slot-a { grid-column: 8 / 13; transform: rotate(2.2deg); margin-top: 2.5rem; }
+  .cc-slot-b { grid-column: 1 / 6; transform: rotate(2.6deg); margin-top: 1rem; }
+  .cc-slot-c { grid-column: 6 / 13; transform: rotate(-1.8deg); margin-top: -1rem; }
+
+  .pin {
+    position: absolute; top: -13px; left: 34px; width: 20px; height: 20px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f7c3da, var(--pink-deep) 70%);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.3); z-index: 4;
+  }
+  .pin.sage { background: radial-gradient(circle at 35% 30%, #e2f0cd, var(--sage-deep) 70%); }
+  .pin.gold { background: radial-gradient(circle at 35% 30%, #faedc9, var(--gold) 70%); }
+  .pin.sky { background: radial-gradient(circle at 35% 30%, #e2eef7, var(--sky) 70%); }
+
+  .washi-strip {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 84px; height: 24px; opacity: 0.9; border-radius: 2px; z-index: 4;
+    background: repeating-linear-gradient(45deg, var(--lilac-light), var(--lilac-light) 6px, var(--lilac) 6px, var(--lilac) 12px);
+  }
+
+  .cc-eyebrow {
+    font-family: 'Caveat', cursive; font-size: 1rem; font-weight: 600; color: var(--ink-muted);
+    display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;
+  }
+  .cc-title { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.25; }
+  .cc-desc { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.65; margin-bottom: 1rem; }
+
+  /* Oracle Orb featured card */
+  .orb-stage {
+    border-radius: 4px; overflow: hidden; position: relative;
+    background: radial-gradient(circle at 50% 40%, #3a2b52, #17101f 75%);
+    height: 260px; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .orb-stage iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .orb-fallback { text-align: center; color: var(--gold-light); font-family: 'Caveat', cursive; }
+  .orb-glow {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, #f3d9ff, #c9b6e4 45%, #6a4b8f 80%);
+    box-shadow: 0 0 60px 18px rgba(201,182,228,0.55), inset 0 0 24px rgba(255,255,255,0.4);
+    margin: 0 auto 0.9rem;
+    animation: orb-pulse 3.4s ease-in-out infinite;
+  }
+  @keyframes orb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .orb-fallback p { font-size: 1.15rem; }
+
+  .cc-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.1rem; }
+  .cc-chip { font-size: 0.7rem; font-weight: 600; padding: 0.28rem 0.7rem; border-radius: 100px; background: var(--cream-soft); color: var(--ink-soft); border: 1px solid var(--border); }
+
+  .cc-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .cc-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.82rem; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 100px;
+    text-decoration: none; transition: transform 0.15s, background 0.2s; cursor: none;
+  }
+  .cc-btn.primary { background: var(--lilac); color: #3a2b52; }
+  .cc-btn.primary:hover { background: #b79fda; transform: translateY(-2px) rotate(-1deg); }
+  .cc-btn.ghost { color: var(--ink-soft); border: 1.5px dashed var(--ink-muted); }
+  .cc-btn.ghost:hover { color: var(--pink-deep); border-color: var(--pink-deep); }
+
+  /* Empty slot cards — waiting for future experiments */
+  .cc-slot {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    min-height: 180px; border: 1.5px dashed var(--border);
+    background: repeating-linear-gradient(135deg, var(--cream-card), var(--cream-card) 10px, var(--cream-soft) 10px, var(--cream-soft) 20px);
+  }
+  .cc-slot .cc-title { color: var(--ink-muted); }
+  .cc-slot .cc-desc { color: var(--ink-muted); margin-bottom: 0; }
+  .cc-slot-mark { font-family: 'Caveat', cursive; font-size: 1.3rem; color: var(--ink-muted); transform: rotate(-3deg); margin-top: 0.6rem; }
+
+  .corkboard-footnote {
+    text-align: center; font-family: 'Caveat', cursive; font-size: 1.05rem; color: var(--ink-muted);
+    margin-top: 2.5rem; transform: rotate(-0.5deg);
+  }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between;
+    align-items: center; max-width: 1200px; margin: 3rem auto 0; color: var(--ink-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  footer a { color: var(--ink-muted); text-decoration: none; }
+  footer a:hover { color: var(--pink-deep); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    section { padding: 5.5rem 1.25rem 3rem; }
+    .corkboard { padding: 2.5rem 1.25rem 3rem; gap: 2rem 0; grid-template-columns: 1fr; border-width: 6px; }
+    .cc-orb, .cc-slot-a, .cc-slot-b, .cc-slot-c { grid-column: 1 / -1; margin-top: 0; transform: rotate(-1deg); }
+    .cc-slot-a { transform: rotate(1.2deg); }
+    .cc-slot-b { transform: rotate(1.6deg); }
+    .cc-slot-c { transform: rotate(-1.2deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-butterfly" id="cursorButterfly">
+  <svg viewBox="0 0 30 30">
+    <g class="cb-wing left">
+      <path d="M15 15 C 6 4, -2 6, 2 15 C -2 24, 6 26, 15 15 Z" fill="#f3a8c6"/>
+      <path d="M15 15 C 9 8, 4 9, 6 15 C 4 21, 9 22, 15 15 Z" fill="#fbdcea"/>
+    </g>
+    <g class="cb-wing right">
+      <path d="M15 15 C 24 4, 32 6, 28 15 C 32 24, 24 26, 15 15 Z" fill="#badd7f"/>
+      <path d="M15 15 C 21 8, 26 9, 24 15 C 26 21, 21 22, 15 15 Z" fill="#e2f0cd"/>
+    </g>
+    <ellipse cx="15" cy="15" rx="1.6" ry="6" fill="#4a3d2e"/>
+  </svg>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">Shweta Mishra</a>
+  <ul class="nav-links">
+     <ul class="nav-links">  
+    <li><a href="index.html">Work</a></li>
+     <li><a href="playground.html">Playground</a></li>
+  </ul>
+  </ul>
+</nav>
+
+<section id="ground-head">
+  <div class="tape-badge">not everything needs a case study ✂</div>
+  <h1 class="ground-title">the <span class="scribble">playground</span></h1>
+  <p class="ground-desc">A messier corner of my site for the side quests, things I built because I was curious, not because a brief told me to.</p>
+  <span class="ground-note">tug on a corner, some of it is still wet paint ✿</span>
+</section>
+
+<section style="padding-top: 0;">
+  <div class="corkboard">
+
+    <!-- Oracle Orb — featured -->
+    <div class="corkcard cc-orb">
+      <div class="pin"></div>
+      <div class="cc-eyebrow">✦ creative coding, for fun</div>
+      <h3 class="cc-title">Oracle Orb</h3>
+
+      <div class="orb-stage">
+      <div class="mockup-item reveal">
+        <img src="oracle_orb.png" alt="Oracle Orb mockup" class="mockup-img" />
+        </div>
+      </div>
+
+      <p class="cc-desc">A mystical little web app that gives you zodiac-personalized answers with animated canvas visuals swirling behind every response. Built purely for the joy of making something a bit magical.</p>
+
+      <div class="cc-tags">
+        <span class="cc-chip">Claude ai</span>
+        <span class="cc-chip">Claude code</span>
+        <span class="cc-chip">Vercel</span>
+        <span class="cc-chip">Groq API</span>
+      </div>
+
+      <div class="cc-actions">
+        <a href="https://oracle-orb.vercel.app/" class="cc-btn primary">Launch the orb ✦</a>
+        <a href="https://github.com/shwetamishra2407/oracle-orb/tree/main" class="cc-btn ghost">View on GitHub →</a>
+      </div>
+    </div>
+
+    <!-- Empty slot A -->
+    <div class="corkcard cc-slot-a cc-slot">
+      <div class="pin sage"></div>
+      <h3 class="cc-title">next experiment</h3>
+      <p class="cc-desc">This spot's saved for whatever I build next.</p>
+      <span class="cc-slot-mark">still brewing ⋆</span>
+    </div>
+
+    <!-- Empty slot B -->
+    <div class="corkcard cc-slot-b cc-slot">
+      <div class="washi-strip"></div>
+      <h3 class="cc-title">something small</h3>
+      <p class="cc-desc">A little tool, game, or visual toy — TBD.</p>
+      <span class="cc-slot-mark">check back soon ✂</span>
+    </div>
+
+    <!-- Empty slot C -->
+    <div class="corkcard cc-slot-c cc-slot">
+      <div class="pin gold"></div>
+      <h3 class="cc-title">a happy accident</h3>
+      <p class="cc-desc">The best playground projects start as mistakes.</p>
+      <span class="cc-slot-mark">watch this space ✿</span>
+    </div>
+
+  </div>
+
+  <p class="corkboard-footnote">more pinned up as I make them — this board is never really finished</p>
+</section>
+
+<footer>
+  <span>Designed & built by <strong>Shweta Mishra</strong> — 2026</span>
+  <a href="index.html">Back to main site ↑</a>
+</footer>
+
+<script>
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  if (!isTouch) {
+    const butterfly = document.getElementById('cursorButterfly');
+    let mx = -100, my = -100, bx = -100, by = -100, lastAngle = 0, lastSparkle = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      const now = performance.now();
+      if (now - lastSparkle > 70) { lastSparkle = now; spawnSparkle(mx, my); }
+    });
+
+    function spawnSparkle(x, y) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      const glyphs = ['✦', '✧', '⋆', '·'];
+      s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      s.style.left = (x + (Math.random() * 14 - 7)) + 'px';
+      s.style.top = (y + (Math.random() * 14 - 7)) + 'px';
+      s.style.color = Math.random() > 0.5 ? '#e5789f' : '#7fb854';
+      document.body.appendChild(s);
+      s.addEventListener('animationend', () => s.remove());
+    }
+
+    function animButterfly() {
+      const dx = mx - bx, dy = my - by;
+      bx += dx * 0.18; by += dy * 0.18;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (Math.abs(dx) + Math.abs(dy) > 1) lastAngle = angle;
+      butterfly.style.transform = `translate(${bx}px, ${by}px) translate(-50%, -50%) rotate(${lastAngle * 0.12}deg)`;
+      requestAnimationFrame(animButterfly);
+    }
+    animButterfly();
+  } else {
+    document.getElementById('cursorButterfly').style.display = 'none';
+  }
+</script>
+</body>
+</html>
